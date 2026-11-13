@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}系统错误 · StudyTask{% endblock %}
+{% block content %}
+<div class="empty">
+  <h1>500</h1>
+  <p>系统开小差了，请稍后重试。</p>
+  <a class="btn btn-primary" href="{{ url_for('index') }}">返回首页</a>
+</div>
+{% endblock %}

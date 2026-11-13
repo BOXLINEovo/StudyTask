@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}{{ item.task.name }} · StudyTask{% endblock %}
+{% block content %}
+<div class="detail-card">
+  <div class="detail-head">
+    <h1>{{ item.task.name }}</h1>
+    <div>
+      {% if item.is_overdue %}
+        <span class="badge badge-overdue">逾期</span>
+      {% elif item.is_due_soon %}
+        <span class="badge badge-soon">即将到期</span>
+      {% endif %}
+    </div>
+  </div>
+
+  <dl class="detail-list">
+    <dt>所属课程</dt><dd>{{ item.task.course }}</dd>
+    <dt>任务描述</dt><dd class="pre">{{ item.task.description or '（无）' }}</dd>
+    <dt>截止日期</dt><dd>{{ item.task.due_date }}</dd>
+    <dt>优先级</dt><dd>{{ item.task.priority }}</dd>
+    <dt>状态</dt><dd>{{ item.task.status }}</dd>
+    <dt>创建时间</dt><dd>{{ item.task.created_at }}</dd>
+    <dt>更新时间</dt><dd>{{ item.task.updated_at }}</dd>
+  </dl>
+
+  <div class="form-actions">
+    <a class="btn btn-primary" href="{{ url_for('edit_task', task_id=item.task.id) }}">编辑</a>
+    <a class="btn danger" href="{{ url_for('delete_confirm', task_id=item.task.id) }}">删除</a>
+    <form class="inline-status" method="post" action="{{ url_for('change_status', task_id=item.task.id) }}">
+      <select name="status" aria-label="调整状态">
+        {% for s in statuses %}
+          <option value="{{ s }}" {% if item.task.status == s %}selected{% endif %}>{{ s }}</option>
+        {% endfor %}
+      </select>
+      <input type="hidden" name="next" value="detail">
+      <button class="btn btn-small" type="submit">更新状态</button>
+    </form>
+    <a class="btn" href="{{ url_for('index') }}">返回列表</a>
+  </div>
+</div>
+{% endblock %}

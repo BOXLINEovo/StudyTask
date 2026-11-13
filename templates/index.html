@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}首页 · StudyTask{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>我的学习任务</h1>
+    <p class="muted">共 {{ summary.total }} 条任务，已完成 {{ summary.completed }} 条</p>
+  </div>
+</div>
+
+<section class="stats">
+  <div class="stat-card">
+    <span class="stat-label">任务总数</span>
+    <strong>{{ summary.total }}</strong>
+  </div>
+  <div class="stat-card">
+    <span class="stat-label">已完成</span>
+    <strong>{{ summary.completed }}</strong>
+  </div>
+  <div class="stat-card">
+    <span class="stat-label">完成率</span>
+    <strong>{{ summary.rate }}%</strong>
+  </div>
+</section>
+
+<form class="filters" method="get" action="{{ url_for('index') }}">
+  <label>课程
+    <select name="course">
+      <option value="">全部课程</option>
+      {% for c in courses %}
+        <option value="{{ c }}" {% if filters.course == c %}selected{% endif %}>{{ c }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>状态
+    <select name="status">
+      <option value="">全部状态</option>
+      {% for s in statuses %}
+        <option value="{{ s }}" {% if filters.status == s %}selected{% endif %}>{{ s }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label>优先级
+    <select name="priority">
+      <option value="">全部优先级</option>
+      {% for p in priorities %}
+        <option value="{{ p }}" {% if filters.priority == p %}selected{% endif %}>{{ p }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <button class="btn btn-primary" type="submit">筛选</button>
+  <a class="btn" href="{{ url_for('index') }}">重置</a>
+</form>
+
+{% if tasks %}
+<table class="task-table">
+  <thead>
+    <tr>
+      <th>任务名称</th>
+      <th>课程</th>
+      <th>截止日期</th>
+      <th>状态</th>
+      <th>优先级</th>
+      <th>操作</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in tasks %}
+      {% set t = item.task %}
+      <tr>
+        <td class="task-name"><a href="{{ url_for('task_detail', task_id=t.id) }}">{{ t.name }}</a></td>
+        <td>{{ t.course }}</td>
+        <td>
+          {{ t.due_date }}
+          {% if item.is_overdue %}
+            <span class="badge badge-overdue">逾期</span>
+          {% elif item.is_due_soon %}
+            <span class="badge badge-soon">即将到期</span>
+          {% endif %}
+        </td>
+        <td>{{ t.status }}</td>
+        <td>{{ t.priority }}</td>
+        <td class="actions">
+          <a class="link" href="{{ url_for('task_detail', task_id=t.id) }}">详情</a>
+          <a class="link" href="{{ url_for('edit_task', task_id=t.id) }}">编辑</a>
+          <a class="link danger" href="{{ url_for('delete_confirm', task_id=t.id) }}">删除</a>
+          <form class="inline-status" method="post" action="{{ url_for('change_status', task_id=t.id) }}">
+            <select name="status" aria-label="调整状态">
+              {% for s in statuses %}
+                <option value="{{ s }}" {% if t.status == s %}selected{% endif %}>{{ s }}</option>
+              {% endfor %}
+            </select>
+            <button class="btn btn-small" type="submit">更新</button>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="empty">
+  <p>暂无任务。</p>
+  <a class="btn btn-primary" href="{{ url_for('new_task') }}">新建任务</a>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}{{ '编辑任务' if mode == 'edit' else '新建任务' }} · StudyTask{% endblock %}
+{% block content %}
+<div class="form-card">
+  <h1>{{ '编辑任务' if mode == 'edit' else '新建任务' }}</h1>
+
+  {% if errors %}
+    <div class="errors">
+      <strong>请修正以下问题：</strong>
+      <ul>
+        {% for e in errors %}<li>{{ e }}</li>{% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  <form method="post"
+        action="{{ url_for('update_task', task_id=task.id) if mode == 'edit' else url_for('create_task') }}">
+    <label>
+      <span class="label-text">任务名称 <span class="req">*</span></span>
+      <input type="text" name="name" maxlength="100" required
+             value="{{ values.get('name', '') }}">
+    </label>
+
+    <label>
+      <span class="label-text">所属课程 <span class="req">*</span></span>
+      <input type="text" name="course" maxlength="60" required
+             value="{{ values.get('course', '') }}">
+    </label>
+
+    <label>
+      <span class="label-text">任务描述</span>
+      <textarea class="auto-grow" name="description" maxlength="1000" rows="5">{{ values.get('description', '') }}</textarea>
+    </label>
+
+    <div class="grid-2">
+      <label>
+        <span class="label-text">截止日期 <span class="req">*</span></span>
+        <input type="date" name="due_date" autocomplete="off"
+               value="{{ values.get('due_date', '') }}">
+      </label>
+      <label>
+        <span class="label-text">优先级</span>
+        <select name="priority">
+          {% for p in priorities %}
+            <option value="{{ p }}" {% if values.get('priority', '中') == p %}selected{% endif %}>{{ p }}</option>
+          {% endfor %}
+        </select>
+      </label>
+    </div>
+
+    <label>
+      <span class="label-text">状态</span>
+      <select name="status">
+        {% for s in statuses %}
+          <option value="{{ s }}" {% if values.get('status', '待完成') == s %}selected{% endif %}>{{ s }}</option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <div class="form-actions">
+      <button class="btn btn-primary" type="submit">保存</button>
+      <a class="btn"
+         href="{{ url_for('task_detail', task_id=task.id) if mode == 'edit' else url_for('index') }}">取消</a>
+    </div>
+  </form>
+</div>
+{% endblock %}
